@@ -31,7 +31,7 @@ Some possible applications include:
 If you are on a modern version of Linux, you should be able to run:
 
 ```
-python3 -m pip install dank
+python3 -m pip install --user dank
 ```
 
 Hopefully that just works. If it doesn't, open an issue. Other platforms aren't

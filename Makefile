@@ -1,5 +1,5 @@
 CC := g++
-CFLAGS := -Wall -Wextra -shared -std=c++14 -O3 -fPIC
+CFLAGS := -Wall -Wextra -shared -std=c++14 -O3 -fPIC -I dank/include/
 
 PYBIND11_INCLUDES := $(shell python3 -m pybind11 --includes)
 PYBIND11_LIBS := $(shell python3-config --ldflags)

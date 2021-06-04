@@ -1,10 +1,10 @@
 #include <iostream>
 #include <pybind11/pybind11.h>
 
-#include "dfa.hpp"
-#include "nfa.hpp"
-#include "infint.hpp"
-#include "encoder.hpp"
+#include <dfa.h>
+#include <nfa.h>
+#include <infint.h>
+#include <encoder.h>
 
 namespace py = pybind11;
 using namespace std;

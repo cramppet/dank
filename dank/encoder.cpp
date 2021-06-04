@@ -1,4 +1,4 @@
-#include "encoder.hpp"
+#include <encoder.h>
 
 #include <sstream>
 #include <algorithm>
@@ -7,7 +7,7 @@
 #include <assert.h>
 
 /*
- * Please see encoder.hpp for a detailed explantion of the
+ * Please see encoder.h for a detailed explantion of the
  * methods in this file and their purpose.
  */
 

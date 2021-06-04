@@ -23,8 +23,8 @@
 
 #include <stdint.h>
 
-#include "dfa.hpp"
-#include "infint.hpp"
+#include "dfa.h"
+#include "infint.h"
 
 typedef std::vector<char> array_type_char_t1;
 typedef std::vector<bool> array_type_bool_t1;

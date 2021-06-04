@@ -42,14 +42,14 @@
 #include <iomanip>
 #include <climits>
 
-//#include <limits.h>
-//#include <stdlib.h>
+// #include <limits.h>
+// #include <stdlib.h>
 
-#ifdef _WIN32
+// #if defined(_WIN32) || defined(_APPLE_)
 #define LONG_LONG_MIN LLONG_MIN
 #define LONG_LONG_MAX LLONG_MAX
 #define ULONG_LONG_MAX ULLONG_MAX
-#endif
+// #endif
 
 #ifdef INFINT_USE_EXCEPTIONS
 #include <exception>

@@ -7,7 +7,7 @@ from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 
 
-__version__ = '0.0.1'
+__version__ = '0.0.6'
 
 #
 # pybind-specific compilation stuff
@@ -85,15 +85,16 @@ ext_modules = [
     Extension(
         'dank',
         [
+            'dank/dank.cpp',
             'dank/dfa.cpp',
             'dank/encoder.cpp',
             'dank/nfa.cpp',
-            'dank/dank.cpp',
         ],
         include_dirs=[
             # Path to pybind11 headers
             get_pybind_include(),
             get_pybind_include(user=True),
+            'dank/include/'
         ],
         libraries=[],
         language='c++',

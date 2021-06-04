@@ -5,8 +5,8 @@
 
 using namespace std;
 
-#include "dfa.hpp"
-#include "nfa.hpp"
+#include <dfa.h>
+#include <nfa.h>
 
 void NFA::insert(size_t s, unsigned char c, size_t t) {
   assert(s < pool.size());

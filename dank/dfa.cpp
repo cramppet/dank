@@ -1,8 +1,9 @@
 #include <cassert>
 #include <sstream>
-#include "dfa.hpp"
-#include "nfa.hpp"
-#include "infint.hpp"
+
+#include <dfa.h>
+#include <nfa.h>
+#include <infint.h>
 
 using namespace std;
 
