@@ -1,0 +1,7 @@
+obj/
+venv/
+build/
+dist/
+*.egg-info
+*.so
+*.o
