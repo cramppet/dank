@@ -1,0 +1,4 @@
+sphinx
+pytest
+myst-parser
+sphinx_rtd_theme

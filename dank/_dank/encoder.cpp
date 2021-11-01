@@ -89,7 +89,8 @@ static class _symbol_not_in_sigma: public std::exception
  *   max_len: the maxium length to compute DFA::buildTable
  */
 DFAEncoder::DFAEncoder(const std::string dfa_str, const uint32_t max_len)
-    : _fixed_slice(max_len),
+    : _max_fixed_slice(max_len),
+      _fixed_slice(max_len),
       _start_state(0),
       _num_states(0),
       _num_symbols(0)
@@ -189,6 +190,15 @@ DFAEncoder::DFAEncoder(const std::string dfa_str, const uint32_t max_len)
     DFAEncoder::_buildTable();
 }
 
+void DFAEncoder::set_fixed_slice(const uint32_t val) {
+    if (val <= _max_fixed_slice) {
+        _fixed_slice = val;
+    }
+}
+
+uint32_t DFAEncoder::get_fixed_slice() {
+    return _fixed_slice;
+}
 
 void DFAEncoder::_validate() {
     // ensure DFA has at least one state

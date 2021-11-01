@@ -40,6 +40,7 @@ class DFAEncoder {
 
 private:
     // the maximum value for which buildTable is computed
+    uint32_t _max_fixed_slice;
     uint32_t _fixed_slice;
 
     // our DFA start state
@@ -90,6 +91,10 @@ private:
     array_type_mpz_t2 _T;
 
 public:
+    // Allows us to control the fixed slice value after DFA construction
+    void set_fixed_slice(const uint32_t);
+    uint32_t get_fixed_slice();
+
     // The constructor of our rank/urank DFA class
     DFAEncoder( const std::string, const uint32_t );
 
@@ -137,6 +142,14 @@ public:
 
   py::int_ num_words(const uint32_t lower, const uint32_t upper) {
     return py::cast(myEncoder->getNumWordsInLanguage(lower, upper).toString());
+  }
+
+  void set_fixed_slice(const uint32_t val) {
+    myEncoder->set_fixed_slice(val);
+  }
+
+  py::int_ get_fixed_slice() {
+    return py::cast(myEncoder->get_fixed_slice());
   }
 };
 

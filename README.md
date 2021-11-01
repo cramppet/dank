@@ -1,78 +1,111 @@
-# dank: a deterministic finite automata ranker 
+# `dank` a deterministic finite automata ranker 
 
-The `dank` package implements an algorithm called **ranking** for finite regular
-languages; **ranking** forms a bijection between the elements of the regular
-language (strings) and ordinal values (integers); ordinal values represent a
-string's position within the lexicographically ordered set of all strings of the
-language. Since this kind of ranking operates on regular languages, we can use
-**regular expressions** as a compact representation of the language.
+The `dank` package implements an algorithm called **ranking** for finite
+[regular languages](https://en.wikipedia.org/wiki/Regular_language). **Ranking**
+forms a bijection between the elements of a regular language (strings) and
+ordinal values (integers).
 
-I can see this package as having several main use cases, though there are
-probably more:
+The ordinal values represent a given string's position within the
+lexicographically ordered set of all strings of the language. Since ranking
+operates on regular languages, we can use **regular expressions** as compact
+representations of these languages.
+
+## The TL;DR of `dank`
+
+This package has several main use cases:
 
 1.  **Programmable encoders** for the serialization of arbitrary data into some
     format modeled as a regular language.
 2.  **Programmable generators** for data modeled as a regular language.
 3.  **Optimal compression** for data modeled as a regular language.
 
-Some possible applications include:
+Some select applications related to the **InfoSec** domain include:
 
-- Fuzzing/brute force/dictionary generation:
+- **Fuzzing/brute force/dictionary generation**:
     - DNS, password, web fuzzing, etc.
-- Network obfuscation:
+- **Network obfuscation**:
     - C2 redirector that generates responses using programmatic encodings
-    - C2 traffic obfuscation (generate MalleableC2 configuration blocks)
-- Payload obfuscation
-    - MalleableC2 (see above)
-- Compression
+    - Generate configuration blocks for [Cobalt Strike's
+      MalleableC2](https://www.cobaltstrike.com/help-malleable-c2)
+- **Payload obfuscation**
+    - Generate configuration blocks for [Cobalt Strike's
+      MalleableC2](https://www.cobaltstrike.com/help-malleable-c2)
 
-# Install
+## Install
 
-If you are on a modern version of Linux, you should be able to run:
+If you are on a modern version of GNU/Linux, you should be able to run:
 
 ```
-python3 -m pip install --user dank
+python3 -m pip install --upgrade dank
 ```
 
 Hopefully that just works. If it doesn't, open an issue. Other platforms aren't
 explicitly supported at this time, but Windows can be accommodated with WSL.
 
-# Examples
+## Examples
 
-## Warmup
+### Warmup
 
 Here's a quick overview with the simplest possible usage:
 
 ```python
->>> import dank
->>> encoder = dank.DFAEncoder('(a|b)+', 6)
+>>> from dank.DankEncoder import DankEncoder
+>>> encoder = DankEncoder('(a|b)+', 6)
 >>> encoder.unrank(42)
 b'bababa'
 >>> bin(42)
 '0b101010'
 ```
 
-What we just did was encode the value `42` into a representation described by
-the regular expression `(a|b)+` with a fixed slice value of 6. A "fixed slice"
-defines the length restriction imposed on the finite regular language. This
-parameter controls the size of the language and consequently the largest amount
-of data you can encode in a single operation.
+We just encoded the value `42` into a representation described by the regular
+expression `(a|b)+` with a **fixed slice** value of 6. What is a "fixed slice"?
+Recall that we are working with **finite** regular languages when we perform
+ranking. The **fixed slice** value defines the length of strings created by the
+encoder. We use this to control otherwise infinite regular languages and make
+them finite (and thus "rankable").
 
-Do you notice anything interesting in the output? The binary representation
-`101010` and the encoded representation `bababa` are in fact identical, simply
-replace `a` with `0` and `b` with `1`.
+In the case of the regular language above `(a|b)+`, this language is infinite
+because it has no upper bound on the size, the `+` operator indicates "one or
+*more*" where *more* has no upper bound. Thus, by imposing a fixed slice of `6`
+we force this language to be finite. Incidentally, this finite language is
+equivalent to `(a|b){6}`, however, general regular languages will not be as
+simple to reduce.
 
-What this illustrates is how the process works at a basic level, it operates
-a lot like a radix change, except the process generalizes to an arbitrary
-regular language.
+You will have to know the desired fixed slice at runtime and provide this value
+to the encoder. Most of the time this is a non-issue as you either already know
+the exact length or you can set some reasonable upper bound. The encoder
+supports the ability to change the fixed slice value applied, but you can only
+decrease it from the original fixed slice you set upon the encoder's
+initialization:
 
-## Programmable Encoders
+```python
+>>> from dank.DankEncoder import DankEncoder
+>>> encoder = DankEncoder('(a|b)+', 6)
+>>> encoder.set_fixed_slice(5)
+>>> encoder.unrank(12)
+b'abbaa'
+>>> encoder.set_fixed_slice(6)
+>>> encoder.unrank(12)
+b'aabbaa'
+>>> encoder.set_fixed_slice(7)
+AssertionError
+```
+
+One final point, do you notice anything interesting in the original output? The
+binary representation `101010` and the encoded representation `bababa` are in
+fact identical, simply replace `a` with `0` and `b` with `1`.  What this
+illustrates is how the process works at a basic level, it operates a lot like a
+[radix
+change](https://en.wikipedia.org/wiki/Positional_notation#Base_conversion),
+except the process generalizes to an arbitrary regular language.
+
+### Programmable Encoders
 
 Let's say you want to transfer data from point A to point B using some
 pre-defined format pretending to be HTTP:
 
 ```
-GET (a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z)+.txt HTTP/1.1
+GET [a-z]+.txt HTTP/1.1
 Host: foobar.c2domain.com
 Connection: Keep-Alive
 ```
@@ -85,86 +118,31 @@ your destination.
 
 This often means that you have to perform some post-processing on it, like
 patching in HTTP headers for `Content-Length`. This is why you should really
-only send data in the HTTP body section, not via headers. You can, but it's more
-work for you recover it and not to mention, it's much less efficient.
+only send data in the HTTP body section, not via headers or in the URI
+specification. You can, but it's more work for you recover it and not to
+mention, it's much less efficient.
 
 ```python
-import dank
+from dank.DankEncoder import DankEncoder
 
-regex = b'''GET (a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z)+.txt HTTP/1.1
+regex = '''GET [a-z]+.txt HTTP/1.1
 Host: foobar.c2domain.com
 Connection: Keep-Alive
 '''
 
-encoder = dank.DFAEncoder(regex, 100)
+encoder = DankEncoder(regex, 100)
 data = 'Hello, world'
 
+# b'GET aaaaaaaaaaaabdgazjsbmjirhingfwqxo.txt HTTP/1.1\nHost: foobar.c2domain.com...'
 encoded = encoder.unrank(int.from_bytes(data.encode('ascii'), 'big'))
-print(encoded)
+print(encoded) 
 
+# Hello, world
 decoded = encoder.rank(encoded).to_bytes(len(data), 'big').decode('ascii')
 print(decoded)
 ```
 
-Now consider the `len(data)` expression when performing decoding, this
-expression can be computed in this example, but you won't be able to at runtime.
-In practice you will want to create a small binary message format to ensure that
-you can send/receive data, something like:
-
-```
-+-----------------+--------------------------+---------------+
-| Magic (2 bytes) | Message length (4 bytes) | Message bytes |
-+-----------------|--------------------------+---------------+
-```
-
-```python
-import math
-import struct
-
-import dank
-
-regex = b'''GET (a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z)+.txt HTTP/1.1
-Host: foobar.c2domain.com
-Connection: Keep-Alive
-'''
-
-class MySimpleEncoder():
-
-    ENCODER_MAGIC = b'\xBE\xBA'
-
-    def __init__(self, regex, fixed_slice=256):
-        self.encoder = dank.DFAEncoder(regex, fixed_slice)
-
-    def encode(self, data: bytes) -> bytes:
-        data_len = len(data)
-        header = struct.pack('>I', data_len)
-        message = self.ENCODER_MAGIC + header + data
-        encoded = self.encoder.unrank(int.from_bytes(message, 'big'))
-        return encoded
-
-    def decode(self, cover: bytes) -> bytes:
-        raw = self.encoder.rank(cover)
-        raw = raw.to_bytes(math.ceil(len(bin(raw))/8), 'big')
-        try:
-            idx = raw.index(self.ENCODER_MAGIC)
-            message = raw[idx+len(self.ENCODER_MAGIC):]
-            data_len = struct.unpack('>I', message[:4])[0]
-            data = message[4:4+data_len]
-            return data
-        except ValueError:
-            raise Exception('Invalid sequence provided for decoding')
-
-encoder = MySimpleEncoder(regex)
-data = 'Hello, world'.encode('ascii)
-
-encoded = encoder.encode(data)
-print(encoded)
-
-decoded = encoder.decode(encoded)
-print(decoded)
-```
-
-## Programmable Generators
+### Programmable Generators
 
 Let's suppose you want to generate some content for fuzzing/brute forcing; if
 you can collect data and generalize formats for what you observed, then you can
@@ -172,13 +150,13 @@ easily synthesize more test cases:
 
 ```python
 import random
-import dank
+from dank.DankEncoder import DankEncoder
 
 # Ex: prod-host1421.example.com, stg-host12414.example.com, etc.
-dns_fuzz_format = b'(dev|prod|stg)-host(1|2|3|4)+.example.com'
+dns_fuzz_format = b'(dev|prod|stg)-host[1-4]+.example.com'
 fixed_slice = 25
 
-encoder = dank.DFAEncoder(dns_fuzz_format, fixed_slice)
+encoder = DankEncoder(dns_fuzz_format, fixed_slice)
 num_words = encoder.num_words(fixed_slice, fixed_slice)
 
 # Iterative selection
@@ -191,7 +169,7 @@ for i in range(1000):
     print(encoder.unrank(e))
 ```
 
-## Optimal compression
+### Optimal compression
 
 The compression use case was the original case for which Goldberg-Sipser
 developed the ranking algorithm used here. Thus, it is the most natural one to
@@ -199,19 +177,19 @@ work with. The compression/decompression is achieved simply through the `rank`
 and `unrank` functions respectively:
 
 ```python
->>> import dank
->>> encoder = dank.DFAEncoder('hello darkness my old (a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z)+', 28)
+>>> from dank.DankEncoder import DankEncoder
+>>> encoder = DankEncoder('hello darkness my old [a-z]+', 28)
 >>> encoder.rank('hello darkness my old friend')
 169363224
 ```
 
 Now, the ordinal value `169,363,224` can be represented using a standard 32-bit
 integer (**4 bytes**). The original string `hello darkness my old friend` took
-**28 bytes** to represent. Thus, we have compressed the string's representation
-by exactly **7 times**, meaning we have seven times less data to store or seven
-times less data to send.
+**28 bytes** to represent in ASCII. Thus, we have compressed the string's
+representation by exactly **7 times**, meaning we have seven times less data to
+store/send.
 
-# Credits
+## Credits
 
 This project is based on three separate projects:
 

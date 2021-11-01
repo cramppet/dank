@@ -7,7 +7,7 @@ from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 
 
-__version__ = '0.0.6'
+__version__ = '0.0.16'
 
 #
 # pybind-specific compilation stuff
@@ -83,18 +83,18 @@ class BuildExt(build_ext):
 
 ext_modules = [
     Extension(
-        'dank',
+        'dank._dank',
         [
-            'dank/dank.cpp',
-            'dank/dfa.cpp',
-            'dank/encoder.cpp',
-            'dank/nfa.cpp',
+            'dank/_dank/dank.cpp',
+            'dank/_dank/dfa.cpp',
+            'dank/_dank/encoder.cpp',
+            'dank/_dank/nfa.cpp',
         ],
         include_dirs=[
             # Path to pybind11 headers
             get_pybind_include(),
             get_pybind_include(user=True),
-            'dank/include/'
+            'dank/_dank/include/'
         ],
         libraries=[],
         language='c++',
@@ -111,6 +111,7 @@ setup(
     description='the dank encoder',
     long_description='the dank encoder',
     ext_modules=ext_modules,
+    packages=['dank'],
     install_requires=['pybind11>=2.5', 'setuptools>=42', 'wheel'],
     setup_requires=['pybind11>=2.5', 'setuptools>=42', 'wheel'],
     cmdclass={'build_ext': BuildExt},
