@@ -22,5 +22,6 @@ PYBIND11_MODULE(_dank, m) {
         .def("unrank", &DFAEncoderPy::unrank)
         .def("num_words", &DFAEncoderPy::num_words)
         .def("get_fixed_slice", &DFAEncoderPy::get_fixed_slice)
-        .def("set_fixed_slice", &DFAEncoderPy::set_fixed_slice);
+        .def("set_fixed_slice", &DFAEncoderPy::set_fixed_slice)
+        .def("num_states", &DFAEncoderPy::num_states);
 }

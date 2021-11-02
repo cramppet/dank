@@ -32,6 +32,9 @@ class DankEncoder:
         self.fixed_slice = fixed_slice
         self._encoder = DFAEncoder(self.regex, fixed_slice)
 
+    def num_states(self) -> int:
+        return self._encoder.num_states()
+
     def num_words(self, low: int, high: int) -> int:
         """Returns the number of elements of the regular language given an upper
         and lower bound on the finite length. Usually these bounds are the same

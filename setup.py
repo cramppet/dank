@@ -7,7 +7,7 @@ from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 
 
-__version__ = '0.0.16'
+__version__ = '0.0.17'
 
 #
 # pybind-specific compilation stuff

@@ -95,6 +95,8 @@ public:
     void set_fixed_slice(const uint32_t);
     uint32_t get_fixed_slice();
 
+    uint32_t num_states();
+
     // The constructor of our rank/urank DFA class
     DFAEncoder( const std::string, const uint32_t );
 
@@ -150,6 +152,10 @@ public:
 
   py::int_ get_fixed_slice() {
     return py::cast(myEncoder->get_fixed_slice());
+  }
+
+  py::int_ num_states() {
+    return py::cast(myEncoder->num_states());
   }
 };
 

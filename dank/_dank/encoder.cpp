@@ -413,3 +413,8 @@ InfInt DFAEncoder::getNumWordsInLanguage( const uint32_t min_word_length,
     }
     return num_words;
 }
+
+uint32_t DFAEncoder::num_states()
+{
+    return _num_states;
+}
