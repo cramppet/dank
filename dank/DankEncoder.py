@@ -33,6 +33,13 @@ class DankEncoder:
         self._encoder = DFAEncoder(self.regex, fixed_slice)
 
     def num_states(self) -> int:
+        """Returns the number of states in the underlying DFA representation of
+        the provided regex. The number of states can be useful in order to infer
+        the fixed slice value in certain instances.
+
+        :return: the number of states found within the underlying DFA 
+        :rtype: int
+        """
         return self._encoder.num_states()
 
     def num_words(self, low: int, high: int) -> int:
@@ -133,7 +140,7 @@ class DankEncoder:
         :rtype: str
         """
         # First pass, expand all (simple) character classes
-        char_classes = re.findall(r'\[(.*?)\]', regex)
+        char_classes = re.findall(r'\[(.\-.)\]', regex)
         for cc in char_classes:
             if re.match(r'^.\-.$', cc):
                 regex = regex.replace(f'[{cc}]', DankEncoder.range_expand(cc))
@@ -148,7 +155,10 @@ class DankEncoder:
         parse_stack, expr_stack, rep_stack = [], [], []
         while i < len(regex):
             e = regex[i]
-            if e == '(':
+            # Skip parsing the next character if it has been escaped
+            if e == '\\':
+                i += 1
+            elif e == '(':
                 parse_stack.append(i)
             elif e == ')':
                 start = parse_stack.pop()
