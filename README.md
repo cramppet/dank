@@ -146,27 +146,31 @@ print(decoded)
 
 Let's suppose you want to generate some content for fuzzing/brute forcing; if
 you can collect data and generalize formats for what you observed, then you can
-easily synthesize more test cases:
+easily synthesize more test cases using `DankGenerator`:
 
 ```python
 import random
-from dank.DankEncoder import DankEncoder
+from dank.DankGenerator import DankGenerator
 
-# Ex: prod-host1421.example.com, stg-host12414.example.com, etc.
-dns_fuzz_format = b'(dev|prod|stg)-host[1-4]+.example.com'
-fixed_slice = 25
+dns_fuzz_format = '(dev|prd|stg)-host[1-4]+.example.com'
 
-encoder = DankEncoder(dns_fuzz_format, fixed_slice)
-num_words = encoder.num_words(fixed_slice, fixed_slice)
+for dns_name in DankGenerator(dns_fuzz_format, random=True, number=10):
+  print(dns_name)
+```
 
-# Iterative selection
-for i in range(1000):
-    print(encoder.unrank(i))
+This will produce output similar to the following:
 
-# Random selection
-for i in range(1000):
-    e = random.randint(0, num_words)
-    print(encoder.unrank(e))
+```
+b'stg-host42421.example.com'
+b'dev-host33411.example.com'
+b'dev-host14443.example.com'
+b'dev-host42112.example.com'
+b'stg-host23143.example.com'
+b'prd-host31122.example.com'
+b'prd-host42411.example.com'
+b'prd-host13324.example.com'
+b'dev-host12324.example.com'
+b'prd-host32344.example.com'
 ```
 
 ### Optimal compression
