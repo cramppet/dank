@@ -120,14 +120,22 @@ class DFAEncoderPy {
 private:
   DFAEncoder* myEncoder;
 public:
-  DFAEncoderPy(const std::string& regex, const uint32_t fixed_slice) {
+  DFAEncoderPy() {
+    myEncoder = nullptr;
+  }
+
+  ~DFAEncoderPy() {
+    delete myEncoder;
+  }
+
+  void from_regex(const std::string& regex, const uint32_t fixed_slice) {
     DFA myDFA = DFA::from_regex(regex);
     const std::string fst = myDFA.to_fst();
     myEncoder = new DFAEncoder(fst, fixed_slice);
   }
 
-  ~DFAEncoderPy() {
-    delete myEncoder;
+  void from_fst(const std::string& fst, const uint32_t fixed_slice) {
+    myEncoder = new DFAEncoder(fst, fixed_slice);
   }
 
   py::bytes unrank(const py::int_ ranking) {

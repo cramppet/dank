@@ -17,11 +17,13 @@ PYBIND11_MODULE(_dank, m) {
         .def("to_fst", &DFA::to_fst)
         .def("to_dot", &DFA::to_dot);
     py::class_<DFAEncoderPy>(m, "DFAEncoder")
-        .def(py::init<const string&, const uint32_t>())
+        .def(py::init<>())
         .def("rank", &DFAEncoderPy::rank)
         .def("unrank", &DFAEncoderPy::unrank)
         .def("num_words", &DFAEncoderPy::num_words)
         .def("get_fixed_slice", &DFAEncoderPy::get_fixed_slice)
         .def("set_fixed_slice", &DFAEncoderPy::set_fixed_slice)
-        .def("num_states", &DFAEncoderPy::num_states);
+        .def("num_states", &DFAEncoderPy::num_states)
+        .def("from_regex", &DFAEncoderPy::from_regex)
+        .def("from_fst", &DFAEncoderPy::from_fst);
 }

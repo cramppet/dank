@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import re
 
 try:
@@ -30,7 +28,15 @@ class DankEncoder:
         self.regex = DankEncoder.preprocess(regex)
         self.max_fixed_slice = fixed_slice
         self.fixed_slice = fixed_slice
-        self._encoder = DFAEncoder(self.regex, fixed_slice)
+        self._encoder = DFAEncoder()
+        self._encoder.from_regex(self.regex, fixed_slice)
+
+    @staticmethod
+    def from_fst(fst: str, fixed_slice: int):
+        ret = DankEncoder("(a|b)", fixed_slice)
+        ret._encoder = DFAEncoder()
+        ret._encoder.from_fst(fst, fixed_slice)
+        return ret
 
     def num_states(self) -> int:
         """Returns the number of states in the underlying DFA representation of
